@@ -1,20 +1,9 @@
 import React, { Component } from "react";
 import { Button,Table, Row,Col,Modal,Form,Input,Icon } from "antd";
+import { connect } from 'dva'
+import PropTypes from 'prop-types'
 
-const dataSource = [
-{
-    key: '1',
-    name: '胡彦斌',
-    age: 32,
-    address: '西湖区湖底公园1号',
-},
-{
-    key: '2',
-    name: '胡彦祖',
-    age: 42,
-    address: '西湖区湖底公园1号',
-},
-];
+const FormItem = Form.Item;
 
 const columns = [
 {
@@ -33,28 +22,32 @@ const columns = [
     key: 'address',
 },
 ];
-
+@Form.create()
+@connect(({ user, app }) => ({ user, app }))
 class User extends Component {
     constructor(props) {
         super(props)
         this.state = {
             dialogVisible:false,
-            form:{
-                name:"11",
-                age:"",
-                adress:""
-            }
         }
     }
     render() {
+        const {
+            form: { getFieldDecorator },
+        } = this.props;
+        const formItemLayout = {
+            labelCol: { span: 6 },
+            wrapperCol:{ span: 18 }
+        };
         return (
             <div>
                 <Row style={{marginBottom:"15px",textAlign:"right"}}>
                     <Col span={24}>
-                        <Button type="primary" onClick={this.addUser}>添加</Button>
+                        <Button style={{marginRight:"10px"}} type="primary" onClick={this.addUser}>添加</Button>
+                        <Button type="success" onClick={this.getUser}>发起请求</Button>
                         </Col>
                 </Row>
-                <Table dataSource={dataSource} columns={columns} />
+                <Table dataSource={this.props.user.userList} columns={columns} />
                 <Modal
                     title="编辑"
                     visible={this.state.dialogVisible}
@@ -62,47 +55,68 @@ class User extends Component {
                     onCancel={this.cancelFun}
                     >
                     <Form  >
-                        <Form.Item>
-                            <Input
-                                prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                                placeholder="姓名"
-                                value={this.state.form.name}
-                                onChange={this.changeValue.bind(this,'name')}
-                            />
-                        </Form.Item>
-                        <Form.Item>
-                            <Input
-                                prefix={<Icon type="age" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                                placeholder="年龄"
-                                value={this.state.form.age}
-                                onChange={this.changeValue.bind(this,'age')}
-                            />
-                        </Form.Item>
-                        <Form.Item>
-                            <Input
-                                prefix={<Icon type="address" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                                placeholder="地址"
-                                value={this.state.form.address}
-                                onChange={this.changeValue.bind(this,'address')}
-                            />
-                        </Form.Item>
+                        <FormItem {...formItemLayout} label="姓名">
+                            {getFieldDecorator('name', {
+                                rules: [{
+                                    required: true, message: '请输入姓名',whitespace:true 
+                                }]
+                            })(
+                                <Input autoComplete="off" placeholder="请输入姓名" maxLength={20} />
+                            )}
+                        </FormItem>
+                        <FormItem {...formItemLayout} label="年龄">
+                            {getFieldDecorator('age', {
+                                rules: [{
+                                    required: true, message: '请输入年龄',whitespace:true 
+                                }]
+                            })(
+                                <Input autoComplete="off" placeholder="请输入年龄" maxLength={20} />
+                            )}
+                        </FormItem>
+                        <FormItem {...formItemLayout} label="性别">
+                            {getFieldDecorator('sex', {
+                                rules: [{
+                                    required: true, message: '请输入性别',whitespace:true 
+                                }]
+                            })(
+                                <Input autoComplete="off" placeholder="请输入性别" maxLength={20} />
+                            )}
+                        </FormItem>
                     </Form>
                 </Modal>
             </div>
 
         )
     }
-    addUser = ()=>{
-        Object.keys(this.state.form).map((key)=>{
-            this.state.form[key] = ""
-        })
+    componentDidMount(){
+        console.log(this.state)
+    }
+    componentWillUnmount() {
+        console.log(this.state)
+    }
+    addUser = (e)=>{
         this.setState({
             dialogVisible:true
         })
     }
+    getUser = ()=>{
+        console.log(this.props.user)
+        const { dispatch } = this.props;
+        dispatch({
+            type: 'user/updateuser'
+        })
+    }
     saveFun = (e)=>{
-        dataSource.push(JSON.parse(JSON.stringify(this.state.form)))
-        this.cancelFun()
+        const { dispatch } = this.props;
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                dispatch({
+                    type: 'user/addUser',
+                    payload:values
+                })
+                this.cancelFun()
+            }
+          });
     }
     cancelFun = ()=>{
         console.log(this.state.form)
@@ -117,6 +131,10 @@ class User extends Component {
             form:Object.assign(this.state.form,obj) 
         })
     }
+}
+
+User.propTypes = {
+    dispatch: PropTypes.func,
 }
 
 export default User

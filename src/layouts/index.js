@@ -1,18 +1,17 @@
 
 import React from 'react'
-import { Layout, Menu, Icon } from 'antd';
-import {Link} from 'react-router-dom'
+import { Layout, Icon  } from 'antd';
 import style from  './index.less';
-
+import Mymenu from './menu'
 const { Header, Sider, Content } = Layout;
 
 class BasicLayout extends React.Component {
   state = {
     collapsed: false,
   };
-  constructor(props){
-    super(props)
-  };
+  // constructor(props){
+  //   super(props)
+  // };
   toggle = () => {
     this.setState({
       collapsed: !this.state.collapsed,
@@ -26,26 +25,7 @@ class BasicLayout extends React.Component {
       >
         <Sider trigger={null} collapsible collapsed={this.state.collapsed}>
           <div className="logo" />
-          <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
-            <Menu.Item key="1">
-              <Link to='/'>
-                <Icon type="video-camera" />
-              <span>首页</span>
-              </Link>
-            </Menu.Item>
-            <Menu.Item key="2">
-            <Link to='/user'>
-              <Icon type="user" />
-              <span>用户</span>
-              </Link>
-            </Menu.Item>
-            <Menu.Item key="3">
-            <Link to='/account'>
-              <Icon type="upload" />
-              <span>账号</span>
-              </Link>
-            </Menu.Item>
-          </Menu>
+          <Mymenu></Mymenu>
         </Sider>
         <Layout>
           <Header style={{ background: '#fff', padding: 0 }}>

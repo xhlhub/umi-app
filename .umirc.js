@@ -2,17 +2,25 @@
 // ref: https://umijs.org/config/
 export default {
   treeShaking: true,
+  // devtool: '#cheap-module-eval-source-map',
   routes: [
-    { path: '/login', component: '../pages/login' },
-    {
-      path: '/',
-      component: '../layouts/index',
+    { 
+      path: '/', 
+      component: '../pages/index',
       routes: [
-        { path: '/', component: '../pages/index' },
-        { path: '/user', component: '../pages/user' },
-        { path: '/account', component: '../pages/account' },
+        { path: '/login', component: '../pages/login' },
+        {
+          path: '/',
+          component: '../layouts/index',
+          routes: [
+            { path: '/', component: '../pages/home' },
+            { path: '/user', component: '../pages/user' },
+            { path: '/account', component: '../pages/account' },
+          ]
+        }
       ]
-    }
+  },
+
   ],
   plugins: [
     // ref: https://umijs.org/plugin/umi-plugin-react.html
@@ -21,7 +29,7 @@ export default {
       dva: true,
       dynamicImport: { webpackChunkName: true },
       title: 'umi项目umi-app',
-      dll: true,
+      dll: false,
       locale: {
         enable: true,
         default: 'en-US',
@@ -37,4 +45,11 @@ export default {
       },
     }],
   ],
+  proxy: {
+    "/api": {
+      "target": "http://localhost:3000",
+      "changeOrigin": true,
+      "pathRewrite": { "^/api" : "" }
+    }
+  }
 }
